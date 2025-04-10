@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attendance Home</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* 기본 스타일 */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Noto Sans KR", sans-serif;
+        background-color: #f9f9f9;
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .container {
+        text-align: center;
+        background-color: #fff;
+        padding: 40px 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        width: 90%;
+        max-width: 600px;
+      }
+
+      h2 {
+        font-size: 1.8rem;
+        color: #4caf50; /* 환영 메시지 강조 색상 */
+        margin-bottom: 20px;
+      }
+
+      p {
+        font-size: 1.2rem;
+        margin-top: 10px;
+        color: #666;
+      }
+
+      .icon-container {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 30px;
+      }
+
+      .icon {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #333; /* 아이콘 텍스트 색상 */
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .icon img {
+        width: 80px; /* 아이콘 크기 */
+        height: 80px; /* 아이콘 크기 */
+        margin-bottom: 10px; /* 아이콘과 텍스트 간격 */
+      }
+
+      .icon span {
+        font-size: 1rem;
+      }
+
+      .icon:hover {
+        transform: scale(1.05); /* 아이콘 확대 효과 */
+      }
+
+      .loading {
+        text-align: center;
+        padding: 20px;
+        font-size: 1.2rem;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+      const { useState, useEffect } = React; // React에서 hooks import
+
+      function ParentDashboard() {
+        const [userData, setUserData] = useState({
+          name: "사용자",
+          email: "",
+          loading: true,
+        });
+
+        React.useEffect(() => {
+          const fetchUserData = async () => {          
+          try {
+            const response = await fetch("/auth/token", {
+              method: "GET",
+              headers: {                
+                "Content-Type": "application/json",
+                credentials: "include",
+              }
+            });
+
+            if (!response.ok) {
+              throw new Error("Failed to fetch user data");
+            }            
+
+            const decoded = await response.json();
+            setUserData({
+              name: decoded.name,
+              email: decoded.email,
+              loading: false,
+            });
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+            setUserData((prev) => ({ ...prev, loading: false }));
+          }
+        };
+
+        fetchUserData();
+      }, []);
+
+
+        if (userData.loading) {
+          return <div className="loading">Loading...</div>;
+        }
+
+        return (
+          <div className="container">
+            <h2>안녕하세요, {userData.name}님</h2>
+            <div className="icon-container">
+              <a href="/user/attendance" className="icon">
+                <img
+                  src="/image/check-attendance.png"
+                  alt="학생 출석 확인 아이콘"
+                />
+                <span>학생 출석 확인</span>
+              </a>
+              <a href="/parent/search" className="icon">
+                <img src="/image/student.png" alt="자식 검색 아이콘" />
+                <span>학생 연결</span>
+              </a>
+            </div>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<ParentDashboard />);
+    </script>
+  </body>
+</html>

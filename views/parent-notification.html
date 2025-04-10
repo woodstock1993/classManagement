@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/manifest.json"/>
+    <title>자녀 등원 알림 서비스</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>    
+    <script src="/firebase-client.js"></script>
+
+    <style>
+        /* 기본 스타일 */
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333333;
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 18px;
+            margin: 20px auto;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #e3f2fd; /* 연한 파란색 */
+            color: #1565c0; /* 진한 파란색 */
+        }
+
+        .notifications {
+            margin-top: 20px;
+        }
+
+        .notification {
+            background-color: #f1f8e9; /* 연한 초록색 */
+            border-left: 5px solid #7cb342; /* 진한 초록색 */
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .notification-time {
+            font-size: 14px;
+            color: #757575; /* 회색 */
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .alarm-button {
+            background-color: #ff7043; /* 주황색 */
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .alarm-button:hover {
+            background-color: #d84315; /* 더 진한 주황색 */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+
+        .attendance-wrap {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .child-attendance {
+            margin-bottom: 20px;
+        }
+        .child-attendance h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .attendance-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .attendance-item {
+            background-color: #f1f8e9;
+            border-left: 5px solid #7cb342;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>자녀 등원 알림 서비스</h1>
+        
+        <!-- 현재 상태 -->
+        <div class="status" id="status">
+            오늘자 자녀의 등원 상태를 표시합니다
+        </div>
+
+        <!-- 알림 목록 -->
+        <div class="notifications" id="notifications">
+        </div>
+
+        <!-- 출결 정보 추가 -->
+        <div class="attendance-wrap" id="attendance-container">
+            <!-- 출결 정보가 여기에 동적으로 추가됩니다 -->
+        </div>
+
+        <!-- 알림 허용 버튼 -->
+        <div class="button-container">
+          <button class="alarm-button" id="allowNotificationButton">알림 허용하기</button>
+        </div>
+    </div>
+
+    <script>
+      document.getElementById('allowNotificationButton').addEventListener('click', async () => {
+          const permission = await Notification.requestPermission();
+          console.log(permission);
+          if (permission === 'granted') {            
+            window.location.reload();
+              alert('알림이 활성화되었습니다.');
+          } else {
+              alert('알림이 비활성화되었습니다.');
+          }
+      });
+
+      async function fetchAttendanceData() {
+        try {
+            const response = await fetch(
+              '/user/history'
+            );
+            if (!response.ok) {
+                throw new Error('Failed to fetch attendance data');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            return null;
+        }
+    }
+
+    function renderAttendanceData(data) {
+        const container = document.getElementById('attendance-container');
+        container.innerHTML = '';
+
+        data.forEach(child => {
+            const childElement = document.createElement('div');
+            childElement.className = 'child-attendance';
+            childElement.innerHTML = `
+                <h2>${child.childName}의 출석 정보</h2>
+                <ul class="attendance-list">
+                    ${child.attendances.map(att => `
+                        <li class="attendance-item">
+                            ${att.status === 'Attended' ? '등원' : '하교'} 완료
+                            <div class="notification-time">${new Date(att.date).toLocaleString()}</div>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+            container.appendChild(childElement);
+        });
+    }
+
+    window.addEventListener('load', async () => {
+        const attendanceData = await fetchAttendanceData();
+        if (attendanceData) {
+            renderAttendanceData(attendanceData);
+        } else {
+            document.getElementById('status').textContent = '출석 정보를 불러오는데 실패했습니다.';
+        }
+    });
+    </script>
+</body>
+</html>

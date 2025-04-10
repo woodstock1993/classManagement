@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>학생 마이페이지</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans KR", sans-serif;
+        background-color: #f1f3f5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .card {
+        background-color: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+      }
+
+      .emoji {
+        font-size: 32px;
+        margin-bottom: 12px;
+      }
+
+      .card h1 {
+        font-size: 24px;
+        color: #212529;
+        margin-bottom: 12px;
+      }
+
+      .card p {
+        font-size: 16px;
+        color: #495057;
+        margin-bottom: 20px;
+      }
+
+      .btn-container {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 20px;
+      }
+
+      .card button {
+        padding: 12px 24px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 15px;
+        transition: background-color 0.3s ease;
+      }
+
+      .btn-edit {
+        background-color: #228be6;
+        color: white;
+      }
+
+      .btn-edit:hover {
+        background-color: #1c7ed6;
+      }
+
+      .btn-logout {
+        background-color: #fa5252;
+        color: white;
+      }
+
+      .btn-logout:hover {
+        background-color: #f03e3e;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- React + Babel CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      function StudentDashboard() {        
+        const userName = localStorage.getItem("name");
+
+        const handleEdit = () => {
+          alert("개인정보 수정 페이지로 이동합니다.");
+        };
+
+        const handleLogout = async () => {          
+          localStorage.removeItem("jwtToken");
+          localStorage.removeItem("name");          
+          try {
+            await fetch("/auth/logout", {
+              method: "GET",              
+            });
+          } catch (err) {
+            console.error("로그아웃 요청 실패:", err);
+          }
+
+          // 3. 로그인 페이지로 리디렉션          
+          window.location.href = "/user/login";
+        };
+
+        return (
+          <div className="card">
+            <div className="emoji">😊</div>
+            <h1>{userName ? `${userName}님 환영합니다` : "Error"}</h1>
+            <div className="btn-container">
+              <button className="btn-edit" onClick={handleEdit}>
+                마이 페이지
+              </button>
+              <button className="btn-logout" onClick={handleLogout}>
+                로그아웃
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<StudentDashboard />);
+    </script>
+  </body>
+</html>

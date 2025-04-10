@@ -1,0 +1,111 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7fc;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 450px;
+    padding: 40px 30px;
+}
+
+.emoji {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.profile-wrap {
+    text-align: center;
+}
+
+/* 프로필 스타일 */
+.profile {
+    margin-bottom: 20px;
+}
+
+.user-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.half {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.half div {
+    font-size: 1.1rem;
+    color: #777;
+}
+
+.count {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+/* 버튼 스타일 */
+.btn {
+    display: inline-block;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    margin: 10px 0;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    font-size: 1rem;
+}
+
+.btn:hover {
+    background-color: #45a049;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-size: 1rem;
+    color: #555;
+}
+
+.input-group input {
+    width: 95%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+/* 푸터 */
+footer {
+    font-size: 0.9rem;
+    color: #888;
+    margin-top: 20px;
+}
+
+footer a {
+    text-decoration: none;
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}

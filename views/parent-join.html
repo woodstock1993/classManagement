@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>부모님 회원가입</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* 스타일 초기화 */
+      body,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p,
+      ul,
+      ol,
+      li,
+      form,
+      input,
+      button,
+      select {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-size: 100%;
+        font: inherit;
+        vertical-align: baseline;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans KR", sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f8f9fa;
+        color: #343a40;
+      }
+
+      .form-container {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        padding: 48px;
+        width: 400px;
+        max-width: 90%;
+        text-align: center;
+      }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 32px;
+        color: #343a40;
+        font-size: 28px;
+        font-weight: 700;
+      }
+
+      .form-group {
+        margin-bottom: 24px;
+        text-align: left;
+      }
+
+      .form-group label {
+        display: block;
+        color: #495057;
+        font-size: 16px;
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 12px;
+        margin-top: 8px;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        font-size: 16px;
+        color: #495057;
+        transition: border-color 0.2s ease-in-out;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+
+      .form-group .error {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 4px;
+      }
+
+      button {
+        width: 100%;
+        padding: 14px 24px;
+        background-color: #28a745;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+      }
+
+      button:hover {
+        background-color: #218838;
+      }
+
+      .verification-button {
+        background-color: #007bff;
+        margin-top: 8px;
+      }
+
+      .verification-button:hover {
+        background-color: #0056b3;
+      }
+
+      .verification-group {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+      }
+
+      .verification-group input {
+        flex: 1;
+      }
+
+      .verification-group button {
+        width: auto;
+        white-space: nowrap;
+      }
+/* 작은 화면에 대한 반응형 스타일 */
+@media (max-width: 600px) {
+  .form-container {
+    padding: 24px;
+    width: 100%;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  h2 {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  .form-group label {
+    font-size: 14px;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  button {
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .verification-group {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .verification-group button {
+    width: 100%;
+  }
+}      
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+      function ParentJoin() {
+        localStorage.removeItem("jwtToken");
+        localStorage.removeItem("name");
+        const [formData, setFormData] = React.useState({
+          email: "",
+          emailVerificationCode: "",
+          phone: "",
+          password: "",
+          provider: "",
+          academyCode: "",
+        });
+
+        const [errors, setErrors] = React.useState({
+          email: "",
+          emailVerificationCode: "",
+          phone: "",
+          password: "",
+          provider: "",
+          academyCode: "",
+        });
+
+        const handleChange = (e) => {
+          const { name, value } = e.target;
+          setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+          }));
+          // Clear error when user types
+          setErrors((prev) => ({
+            ...prev,
+            [name]: "",
+          }));
+        };
+
+        const sendVerificationCode = async () => {
+          if (!formData.email) {
+            setErrors((prev) => ({
+              ...prev,
+              email: "이메일을 입력하세요.",
+            }));
+            return;
+          }
+
+          try {
+            const response = await fetch("/auth/verification-code", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ email: formData.email }),
+            });
+
+            const data = await response.json();
+            if (data.success) {
+              alert("이메일로 인증 코드가 발송되었습니다.");
+            } else {
+              alert("이메일 전송에 실패했습니다.");
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            alert("인증 코드 전송 중 오류가 발생했습니다.");
+          }
+        };
+
+        const checkVerificationCode = async () => {
+          if (!formData.emailVerificationCode) {
+            setErrors((prev) => ({
+              ...prev,
+              emailVerificationCode: "인증 번호를 입력하세요.",
+            }));
+            return;
+          }
+
+          try {
+            const response = await fetch("/auth/verification-email", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: formData.email,
+                token: formData.emailVerificationCode,
+              }),
+            });
+
+            const data = await response.json();
+            if (data.success) {
+              alert("인증번호가 일치합니다.");
+            } else {
+              alert("인증번호가 일치하지 않습니다.");
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            alert("인증 코드 확인 중 오류가 발생했습니다.");
+          }
+        };
+
+        const validateForm = () => {
+          const newErrors = {};
+          let isValid = true;
+
+          // 이메일 검증
+          if (!formData.email) {
+            isValid = false;
+            newErrors.email = "이메일을 입력하세요.";
+          }
+
+          // 이메일 인증 코드 검증
+          if (!formData.emailVerificationCode) {
+            isValid = false;
+            newErrors.emailVerificationCode = "인증 코드를 입력하세요.";
+          }
+
+          if (!formData.name) {
+            isValid = false;
+            newErrors.name = "이름을 입력하세요.";
+          } else if (formData.name.length < 2) {
+            isValid = false;
+            newErrors.name = "이름은 최소 2자 이상이어야 합니다.";
+          }
+
+          // 전화번호 검증
+          if (!formData.phone.match(/^[0-9]+$/)) {
+            isValid = false;
+            newErrors.phone = "핸드폰 번호는 숫자만 포함해야 합니다.";
+          } else if (formData.phone.length < 10 || formData.phone.length > 11) {
+            isValid = false;
+            newErrors.phone = "핸드폰 번호는 10자리에서 11자리여야 합니다.";
+          }
+
+          // 비밀번호 검증
+          const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,}$/;
+          if (!passwordRegex.test(formData.password)) {
+            isValid = false;
+            newErrors.password =
+              "비밀번호는 최소 6자리 이상이어야 하며, 영어와 숫자가 섞여 있어야 합니다.";
+          }
+
+          // 플랫폼 선택 검증
+          if (!formData.provider) {
+            isValid = false;
+            newErrors.provider = "플랫폼을 선택하세요.";
+          }
+
+          // 학원 코드 검증
+          if (!formData.academyCode) {
+            isValid = false;
+            newErrors.academyCode = "유효한 코드를 입력하세요.";
+          }
+
+          setErrors(newErrors);
+          return isValid;
+        };
+
+        const handleSubmit = async (e) => {
+          e.preventDefault();
+
+          if (!validateForm()) {
+            return;
+          }
+
+          try {
+            const response = await fetch("/parent/join", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            });
+
+            const result = await response.json();
+            if (result.success) {
+              alert(result.message || "회원가입이 완료되었습니다.");
+              window.location.href = result.redirectUrl || "/parent/login";
+            } else {
+              // 서버에서 반환된 오류 메시지 표시
+              if (result.message.includes("학원 코드")) {
+                setErrors((prev) => ({
+                  ...prev,
+                  academyCode: result.message,
+                }));
+              } else if (result.message.includes("이메일")) {
+                setErrors((prev) => ({
+                  ...prev,
+                  emailVerificationCode: result.message,
+                }));
+              } else if (result.message.includes("가입한 이력")) {
+                setErrors((prev) => ({
+                  ...prev,
+                  email: result.message,
+                }));
+              } else {
+                alert(result.message || "회원가입에 실패했습니다.");
+              }
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            alert("회원가입 중 오류가 발생했습니다.");
+          }
+        };
+
+        // 학원 코드 검증 함수 추가
+        const checkAcademyCode = async () => {
+          if (!formData.academyCode) {
+            setErrors((prev) => ({
+              ...prev,
+              academyCode: "학원 코드를 입력하세요.",
+            }));
+            return;
+          }
+
+          try {
+            const response = await fetch("/academy/code", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ academyCode: formData.academyCode }),
+            });
+
+            const result = await response.json();
+            if (result.success) {
+              alert("유효한 학원 코드입니다.");
+            } else {
+              setErrors((prev) => ({
+                ...prev,
+                academyCode: result.message || "유효하지 않은 학원 코드입니다.",
+              }));
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            alert("학원 코드 확인 중 오류가 발생했습니다.");
+          }
+        };
+
+        return (
+          <div className="form-container">
+            <h2>회원가입</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="email">이메일</label>
+                <div className="verification-group">
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+                  <button
+                    type="button"
+                    className="verification-button"
+                    onClick={sendVerificationCode}
+                  >
+                    인증번호 전송
+                  </button>
+                </div>
+                {errors.email && <div className="error">{errors.email}</div>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="emailVerificationCode">이메일 인증 코드</label>
+                <div className="verification-group">
+                  <input
+                    type="text"
+                    id="emailVerificationCode"
+                    name="emailVerificationCode"
+                    value={formData.emailVerificationCode}
+                    onChange={handleChange}
+                  />
+                  <button
+                    type="button"
+                    className="verification-button"
+                    onClick={checkVerificationCode}
+                  >
+                    인증번호 확인
+                  </button>
+                </div>
+                {errors.emailVerificationCode && (
+                  <div className="error">{errors.emailVerificationCode}</div>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="name">이름</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                />
+                {errors.name && <div className="error">{errors.name}</div>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="phone">전화번호</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                />
+                {errors.phone && <div className="error">{errors.phone}</div>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">비밀번호</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+                {errors.password && (
+                  <div className="error">{errors.password}</div>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="provider">플랫폼</label>
+                <select
+                  id="provider"
+                  name="provider"
+                  value={formData.provider}
+                  onChange={handleChange}
+                >
+                  <option value="">선택하세요</option>
+                  <option value="web">local</option>
+                </select>
+                {errors.provider && (
+                  <div className="error">{errors.provider}</div>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="academyCode">학원 코드</label>
+                <div className="verification-group">
+                  <input
+                    type="text"
+                    id="academyCode"
+                    name="academyCode"
+                    value={formData.academyCode}
+                    onChange={handleChange}
+                  />
+                  <button
+                    type="button"
+                    className="verification-button"
+                    onClick={checkAcademyCode}
+                  >
+                    코드 확인
+                  </button>
+                </div>
+                {errors.academyCode && (
+                  <div className="error">{errors.academyCode}</div>
+                )}
+              </div>
+
+              <button type="submit">회원가입</button>
+            </form>
+          </div>
+        );
+      }
+
+      const root = document.getElementById("root");
+      ReactDOM.render(<ParentJoin />, root);
+    </script>
+  </body>
+</html>

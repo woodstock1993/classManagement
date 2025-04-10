@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>로그인 페이지</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* 스타일 초기화 */
+      body,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p,
+      ul,
+      ol,
+      li,
+      form,
+      input,
+      button {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-size: 100%;
+        font: inherit;
+        vertical-align: baseline;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans KR", sans-serif;
+        background-color: #f8f9fa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .login-container {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        padding: 48px;
+        width: 350px;
+        max-width: 90%;
+        text-align: center;
+      }
+
+      .login-title {
+        color: #343a40;
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 32px;
+      }
+
+      .form-group {
+        margin-bottom: 24px;
+        text-align: left;
+      }
+
+      .form-label {
+        display: block;
+        color: #495057;
+        font-size: 16px;
+        margin-bottom: 8px;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        font-size: 16px;
+        color: #495057;
+        transition: border-color 0.2s ease-in-out;
+        margin-bottom: 8px;
+      }
+
+      .form-control:focus {
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+
+      .verification-error {
+        color: #e63946;
+      }
+
+      .login-button {
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 14px 24px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+        width: 100%;
+        margin-bottom: 16px;
+      }
+
+      .login-button:hover {
+        background-color: #0056b3;
+      }
+
+      .signup-link {
+        color: #007bff;
+        font-size: 16px;
+        text-decoration: none;
+        transition: color 0.2s ease-in-out;
+      }
+
+      .signup-link:hover {
+        color: #0056b3;
+      }
+
+      .error-message {
+        color: #e63946;
+        margin-bottom: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+      function ParentLogin() {
+        localStorage.removeItem("jwtToken");
+        localStorage.removeItem("name");
+        const [formData, setFormData] = React.useState({
+          email: "",
+          password: "",
+        });
+        const [errors, setErrors] = React.useState({
+          email: "",
+          password: "",
+        });
+        const [loginError, setLoginError] = React.useState("");
+
+        // URL에서 에러 메시지 확인
+        React.useEffect(() => {
+          const urlParams = new URLSearchParams(window.location.search);
+          const errorParam = urlParams.get("error");
+          if (errorParam) {
+            setLoginError(decodeURIComponent(errorParam));
+          }
+        }, []);
+
+        const handleChange = (e) => {
+          const { name, value } = e.target;
+          setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+          }));
+          
+          setErrors((prev) => ({
+            ...prev,
+            [name]: "",
+          }));
+          setLoginError("");
+        };
+
+        const handleSubmit = async (e) => {
+          e.preventDefault();
+          let isValid = true;
+          const newErrors = {};
+
+          if (!formData.email) {
+            isValid = false;
+            newErrors.email = "이메일을 입력하세요.";
+          }
+
+          if (!formData.password) {
+            isValid = false;
+            newErrors.password = "비밀번호를 입력하세요.";
+          }
+
+          setErrors(newErrors);
+
+          if (isValid) {
+            try {
+              const response = await fetch("/parent/login", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",                  
+                },
+                body: JSON.stringify({
+                  email: formData.email,
+                  password: formData.password,
+                }),
+              });
+
+              const data = await response.json();
+
+              if (data.token) {
+                localStorage.setItem("jwtToken", data.token);
+                localStorage.setItem("type", data.type);
+              }
+              if (data.success) {
+                window.location.href = data.redirectUrl;
+              } else {
+                setLoginError(data.message || "로그인에 실패했습니다.");
+              }
+            } catch (error) {
+              console.error("Login error:", error);
+              setLoginError("로그인 중 오류가 발생했습니다.");
+            }
+          }
+        };
+
+        return (
+          <div className="login-container">
+            <h1 className="login-title">로그인</h1>
+            {loginError && <div className="error-message">{loginError}</div>}
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label className="form-label" htmlFor="email">
+                  이메일
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  className="form-control"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+                {errors.email && (
+                  <div className="verification-error">{errors.email}</div>
+                )}
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="password">
+                  비밀번호
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  className="form-control"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+                {errors.password && (
+                  <div className="verification-error">{errors.password}</div>
+                )}
+              </div>
+              <button type="submit" className="login-button">
+                로그인
+              </button>
+              <a href="/parent/join" className="signup-link" id="signupLink">
+                회원가입
+              </a>
+            </form>
+          </div>
+        );
+      }
+
+      const root = document.getElementById("root");
+      ReactDOM.render(<ParentLogin />, root);
+    </script>
+  </body>
+</html>
