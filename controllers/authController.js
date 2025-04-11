@@ -170,7 +170,7 @@ exports.createToken = async (req, res) => {
             type: 'user',
         }, process.env.JWT_SECRET, {
             expiresIn: '15m',
-            issuer: 'woodstock',
+            issuer: 'woodstock93',
         });
 
         const refreshToken = jwt.sign({
@@ -179,7 +179,7 @@ exports.createToken = async (req, res) => {
             name: user.name,
         }, process.env.REFRESH_SECRET, {
             expiresIn: '30m',
-            issuer: 'woodstock',
+            issuer: 'woodstock93',
         });
 
         res.cookie("token", refreshToken, {

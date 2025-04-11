@@ -31,9 +31,9 @@ class Parent extends Sequelize.Model {
                 allowNull: false,
             },
             provider: {
-                type: Sequelize.ENUM('web', 'kakao', 'apple', 'google'),
+                type: Sequelize.ENUM('Desktop', 'android', 'ios',),
                 allowNull: false,
-                defaultValue: 'web',
+                defaultValue: 'Desktop',
             },
             academyId: {
                 type: Sequelize.INTEGER,

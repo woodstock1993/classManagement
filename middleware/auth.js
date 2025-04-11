@@ -32,14 +32,14 @@ exports.processQRCode = (req, res, next) => {
 exports.verifyToken = (req, res, next) => {
     try {
         const token = req.cookies.token;
-        res.locals.decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log('verify');
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('jwtToken is verified!!!');
         return next();
     } catch (accessError) {
         const refreshToken = req.cookies.refreshToken;
-        console.log(jwt.decode(refreshToken))
         if (!refreshToken) {
-            const userType = req.cookies.userType;
+            const userType = req.cookies.type;
+            console.log(userType);
             let redirectPath = "/user/login";
             if (userType === "parent") {
                 redirectPath = "/parent/login";
@@ -63,7 +63,7 @@ exports.verifyToken = (req, res, next) => {
                 },
                 process.env.JWT_SECRET,
                 {
-                    expiresIn: "1m",
+                    expiresIn: "15m",
                     issuer: "woodstock93",
                 }
             );

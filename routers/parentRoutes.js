@@ -27,7 +27,7 @@ router.get('/logout', isParentLoggedIn, logout, (req, res) => {
     res.redirect('/parent/login');
 });
 
-router.get('/dashboard', verifyToken,  renderParentDashBoard);
+router.get('/dashboard', verifyToken, renderParentDashBoard);
 router.get('/search', verifyToken, renderParentSearchChild);
 
 module.exports = router;

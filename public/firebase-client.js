@@ -95,8 +95,7 @@ async function requestPermissionAndGetToken() {
             vapidKey: firebaseConfig.vapidKey
         });
 
-        if (token) {
-            console.log('FCM Token:', token);
+        if (token) {            
             sendTokenToServer(token, deviceType, browserType);
         } else {
             console.log('토큰을 생성할 수 없습니다.');

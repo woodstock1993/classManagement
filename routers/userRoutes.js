@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { isUserLoggedIn, isNotUserLoggedIn } = require('../passport/middleware');
+const { isUserLoggedIn, isNotUserLoggedIn, isParentLoggedIn } = require('../passport/middleware');
 const { userJoin, getUser } = require('../controllers/userController');
 const { verifyToken } = require('../middleware/auth')
 const { renderUserLogin, renderUserJoin, renderUserHome, userLogin } = require('../controllers/userController')
@@ -20,6 +20,6 @@ router.get('/join', isNotUserLoggedIn, renderUserJoin);
 router.get('/history', verifyToken, getAttendance);
 
 router.post('/join', isNotUserLoggedIn, userJoin);
-router.post('/login',  userLogin);
+router.post('/login', userLogin);
 
 module.exports = router;

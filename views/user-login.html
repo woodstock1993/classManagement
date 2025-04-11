@@ -201,12 +201,11 @@
 
               const data = await response.json();
               console.log(data);
-              if (data.success) {
-                console.log('success', redirectUrl);
+              if (data.success) {                
                 localStorage.setItem("jwtToken", data.token);
                 localStorage.setItem("name", data.name);
                 localStorage.setItem("type", data.type);
-                window.location.href = data.redirectUrl;
+                window.location.href = '/user/home';
               } else {
                 setLoginError(data.message || "로그인에 실패했습니다.");
               }

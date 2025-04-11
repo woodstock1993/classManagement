@@ -48,10 +48,10 @@ exports.userLogin = async (req, res, next) => {
         if (!user) {
             return res.redirect(`/user/login/?error=${info.message}`);
         }
-
         const token = jwt.sign({
             email: user.email,
             name: user.name,
+            id: user.id,
             type: 'user',
         }, process.env.JWT_SECRET, {
             expiresIn: '15m',
@@ -63,22 +63,22 @@ exports.userLogin = async (req, res, next) => {
             secure: false,
             sameSite: "Strict",
         });
-
+        
         const refreshToken = jwt.sign({
             id: user.id,
             email: user.email,
             name: user.name,
         }, process.env.REFRESH_SECRET, {
             expiresIn: '30m',
-            issuer: 'woodstock',
+            issuer: 'woodstock93',
         });
 
-        res.cookie("token", refreshToken, {
+        res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: false,
             sameSite: "Strict",
         });
-        
+
         return res.json({
             name: user.name,
             type: 'user',

@@ -41,20 +41,20 @@ exports.parentLogin = async (req, res, next) => {
             name: user.name,
         }, process.env.REFRESH_SECRET, {
             expiresIn: '30m',
-            issuer: 'woodstock',
+            issuer: 'woodstock93',
         });
 
-        res.cookie("token", refreshToken, {
+        res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: false,
             sameSite: "Strict",
         });
-
+        
         return res.json({
-            success: true,
             name: user.name,
-            token: token,
             type: 'parent',
+            success: true,
+            token: token,
             refreshToken: refreshToken,
             redirectUrl: '/parent/dashboard'
         });
@@ -116,11 +116,13 @@ exports.parentJoin = async (req, res, next) => {
             provider: provider,
             academyId: academy.id,
         });
+
         const token = jwt.sign(
             {
                 id: parent.id,
-                email: parent.email,
                 name: parent.name,
+                email: parent.email,
+                type: 'parent'
             },
             process.env.JWT_SECRET,
             {
@@ -128,6 +130,7 @@ exports.parentJoin = async (req, res, next) => {
                 issuer: 'woodstock93'
             }
         );
+
         return res.status(200).json({
             success: true,
             message: '회원가입이 완료되었습니다.',
@@ -310,17 +313,7 @@ exports.renderParentJoin = async (req, res, next) => {
 }
 
 exports.renderParentDashBoard = (req, res) => {
-    // req.user에는 인증된 사용자 정보가 있습니다
-    const userScript = `
-        <script>
-            window.__INITIAL_USER__ = ${JSON.stringify(req.user)};
-        </script>
-    `;
-    // HTML 템플릿에 스크립트 주입
-    res.render('parent-dashboard', {
-        user: req.user,
-        userScript: userScript
-    });
+    res.render('parent-dashboard', { title: 'Parent DashBoard', error: null });
 };
 
 exports.renderParentSearchChild = async (req, res, next) => {

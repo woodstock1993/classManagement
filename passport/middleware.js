@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 
 exports.isUserLoggedIn = (req, res, next) => {
-  const token = res.cookies.token;
-  console.log(token);
+  const token = req.cookies.token;
+  console.log(`token 있어요. ${token}`);
   if (token) {
     return next();
   }
@@ -26,8 +26,7 @@ exports.isNotUserLoggedIn = (req, res, next) => {
     return next();
   }
 
-  try {
-    console.log('try');
+  try {    
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     return res.status(400).json({
@@ -47,13 +46,12 @@ exports.isNotUserLoggedIn = (req, res, next) => {
 
 exports.isParentLoggedIn = (req, res, next) => {
   const token = req.cookies.token;
-  if (!token) {
-    return res.redirect('/user/login');
+  if (token) {
+    return next();
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
     return next();
   } catch (err) {
     console.error('JWT 토큰 만료');
@@ -68,12 +66,19 @@ exports.isParentLoggedIn = (req, res, next) => {
 
 exports.isNotParentLoggedIn = (req, res, next) => {
   const token = req.cookies.token;
-  if (!token) return next();
+  console.log(`token: ${token}`);
+  if (!token) {
+    return next();
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
-    return res.status(401).send('로그인한 상태에서 해당 페이지에 접근할 수 없습니다');
+    return res.status(400).json({
+      message: '로그인한 상태에서 해당 페이지에 접근할 수 없습니다',
+      redirect: '/parent/login'
+    });
+
   } catch (err) {
     console.error('JWT 토큰 만료');
     res.clearCookie("token", {
