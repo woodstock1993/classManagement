@@ -3,8 +3,15 @@ require('dotenv').config({ path: `.env.${process.env.NODE_ENV || 'production'}` 
 const config = {
     BASE_URL: process.env.BASE_URL,
     NODE_ENV: process.env.NODE_ENV,
+
+    MYSQL_DATABASE: process.env.MYSQL_DATABASE,
+    MYSQL_USER: process.env.MYSQL_USER,
+    MYSQL_PASSWORD: process.env.MYSQL_PASSWORD,
+    MYSQL_ROOT_PASSWORD: process.env.MYSQL_ROOT_PASSWORD,
+
     HOST: process.env.HOST,
     PROTOCOL: process.env.PROTOCOL,
+
     KAKAO: {
         CLIENT_ID: process.env.KAKAO_ID,
         CALLBACK_URL: process.env.KAKAO_CALLBACK_URL

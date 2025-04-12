@@ -1,0 +1,35 @@
+services:
+  app:
+    build: .
+    container_name: class-management
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env.production
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    networks:
+      - backend
+    command: node server.js  # 또는 npm start
+    restart: always
+
+  db:
+    image: mysql:8.0
+    container_name: local-mysql
+    restart: always
+    env_file:
+      - .env.production
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend
+
+volumes:
+  mysql_data:
+
+networks:
+  backend:

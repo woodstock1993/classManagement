@@ -103,6 +103,6 @@ exports.checkAttendance = async (req, res) => {
 
     } catch (error) {
         console.error("출석 확인 중 오류 발생:", error);
-        return res.status(500).json({ error: "서버 오류 발생" });
+        return res.status(500).json({ error: "재로그인이 필요합니다." });
     }
 }
