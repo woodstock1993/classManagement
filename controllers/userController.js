@@ -1,5 +1,5 @@
 const config = require('dotenv').config({ path: `.env.${process.env.NODE_ENV || 'production'}` });
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 

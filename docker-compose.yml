@@ -10,9 +10,10 @@ services:
       - db
     volumes:
       - .:/app
+      - /app/node_modules  # 이 줄이 node_modules 오염 방지
     networks:
       - backend
-    command: node server.js  # 또는 npm start
+    command: node server.js
     restart: always
 
   db:

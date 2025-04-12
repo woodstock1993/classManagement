@@ -1,5 +1,5 @@
 const { sequelize } = require('../models/index');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 
@@ -49,7 +49,7 @@ exports.parentLogin = async (req, res, next) => {
             secure: false,
             sameSite: "Strict",
         });
-        
+
         return res.json({
             name: user.name,
             type: 'parent',
